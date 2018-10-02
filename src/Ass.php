@@ -33,7 +33,8 @@ class Ass
             }
             return $this->cleaner();
         }
-        throw new \Aegisub\Subtitles\Exceptions\FileNotValidException("It is not a valid file.");
+        
+        throw new \Aegisub\Exceptions\FileNotValidException("It is not a valid file.");
     }
 
     private function isASS($data)
