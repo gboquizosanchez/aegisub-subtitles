@@ -11,6 +11,7 @@ class Ass
     protected const EVENTS = "[Events]";
     protected const EXTRA_DATA = "[Aegisub Extradata]";
     protected const HEADERS = "Format: ";
+    protected const BREAKLINE = "\r\n";
     public $scriptInfoHeaders = [];
     public $scriptInfo = [];
     public $stylesHeaders;
@@ -22,10 +23,11 @@ class Ass
 
     public function parse($data)
     {
-        if ($this->isASS($data)) {
+        if ($this->isASS($data = collect(explode(self::BREAKLINE, file_get_contents($data))))) {
+
             foreach ($data as $line) {
 
-                ! $this->isChangeBlock() ?: $this->setBlock($this->checkBlock($line));
+                !$this->isChangeBlock() ?: $this->setBlock($this->checkBlock($line));
 
                 empty($line) ?: $this->extractBlock($line);
 
@@ -33,7 +35,7 @@ class Ass
             }
             return $this->cleaner();
         }
-        
+
         throw new \Aegisub\Exceptions\FileNotValidException("It is not a valid file.");
     }
 
@@ -112,7 +114,7 @@ class Ass
 
     private function explodeLine($line, $delimiter, $limit = false)
     {
-        return ! $limit ? explode($delimiter, $line) : explode($delimiter, $line, $limit);
+        return !$limit ? explode($delimiter, $line) : explode($delimiter, $line, $limit);
     }
 
     private function setScriptHeaders($line)
@@ -170,8 +172,48 @@ class Ass
 
     private function cleaner()
     {
-        unset($this->block);
-        unset($this->change);
+        $this->reformatter();
+
+        $this->unsetting();
+
         return $this;
+    }
+
+    private function reformatter()
+    {
+        $this->scriptInfo = $this->reformatInside($this->scriptInfoHeaders, $this->scriptInfo);
+        $this->styles = $this->reformat($this->stylesHeaders, $this->styles);
+        $this->events = $this->reformat($this->eventsHeaders, $this->events);
+    }
+
+    private function reformat($header, $formatting)
+    {
+        $arr = [];
+
+        foreach ($formatting as $style) {
+            array_push($arr, $this->reformatInside($header, $style));
+        }
+
+        return $arr;
+    }
+
+    private function reformatInside($header, $formatting)
+    {
+        $obj = app()->make('StdClass');
+
+        for ($i = 0; $i < count($header); $i++) {
+            $obj->{camel_case($header[$i])} = $formatting[$i];
+        }
+
+        return $obj;
+    }
+
+    private function unsetting()
+    {
+        $unset = ['block', 'change', 'scriptInfoHeaders', 'stylesHeaders', 'eventsHeaders'];
+
+        foreach ($unset as $str) {
+            unset($this->$str);
+        }
     }
 }
