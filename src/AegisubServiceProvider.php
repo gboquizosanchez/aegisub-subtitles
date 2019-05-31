@@ -24,7 +24,7 @@ class AegisubServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(Ass::class, function () {
-            return new Ass;
+            return new Ass();
         });
 
         $this->app->alias(Ass::class, 'aegisub');

@@ -4,13 +4,13 @@ namespace Aegisub;
 
 class Ass
 {
-    protected const SCRIPT_BLOCK = "﻿[Script Info]";
-    protected const GARBAGE_BLOCK = "[Aegisub Project Garbage]";
-    protected const STYLES_V4 = "[V4 Styles]";
-    protected const STYLES_V4PLUS = "[V4+ Styles]";
-    protected const EVENTS = "[Events]";
-    protected const EXTRA_DATA = "[Aegisub Extradata]";
-    protected const HEADERS = "Format: ";
+    protected const SCRIPT_BLOCK = '﻿[Script Info]';
+    protected const GARBAGE_BLOCK = '[Aegisub Project Garbage]';
+    protected const STYLES_V4 = '[V4 Styles]';
+    protected const STYLES_V4PLUS = '[V4+ Styles]';
+    protected const EVENTS = '[Events]';
+    protected const EXTRA_DATA = '[Aegisub Extradata]';
+    protected const HEADERS = 'Format: ';
     protected const BREAKLINE = "\r\n";
     public $scriptInfoHeaders = [];
     public $scriptInfo = [];
@@ -24,27 +24,28 @@ class Ass
     public function parse($data)
     {
         if ($this->isASS($data = collect(explode(self::BREAKLINE, file_get_contents($data))))) {
-
             foreach ($data as $line) {
-
                 !$this->isChangeBlock() ?: $this->setBlock($this->checkBlock($line));
 
                 empty($line) ?: $this->extractBlock($line);
 
                 $this->checkChangeBlock($line);
             }
+
             return $this->cleaner();
         }
 
-        throw new \Aegisub\Exceptions\FileNotValidException("It is not a valid file.");
+        throw new \Aegisub\Exceptions\FileNotValidException('It is not a valid file.');
     }
 
     private function isASS($data)
     {
         if ($data[0] === self::SCRIPT_BLOCK) {
             $this->setBlock($this->checkBlock($data[0]));
+
             return true;
         }
+
         return false;
     }
 
@@ -68,7 +69,7 @@ class Ass
                 return 4;
             case self::EXTRA_DATA:
                 return 5;
-            default :
+            default:
                 return -1;
         }
     }
@@ -100,7 +101,7 @@ class Ass
 
     private function setInfo($line)
     {
-        if ($line !== self::SCRIPT_BLOCK && $line[0] !== ";") {
+        if ($line !== self::SCRIPT_BLOCK && $line[0] !== ';') {
             $this->setScript($line);
         }
     }
@@ -132,7 +133,7 @@ class Ass
         if ($line !== self::STYLES_V4PLUS && $line !== self::STYLES_V4) {
             str_contains($line, self::HEADERS)
                 ? $this->setStylesHeaders($this->explodeLine($this->explodeLine($line, ': ')[1], ', '))
-                : $this->setStylesLine($this->explodeLine($this->explodeLine($line, ": ")[1], ','));
+                : $this->setStylesLine($this->explodeLine($this->explodeLine($line, ': ')[1], ','));
         }
     }
 
@@ -151,7 +152,7 @@ class Ass
         if ($line !== self::EVENTS) {
             str_contains($line, self::HEADERS)
                 ? $this->setEventsHeaders($this->explodeLine($this->explodeLine($line, ': ')[1], ', '))
-                : $this->setEventsLine($this->explodeLine($this->explodeLine($line, ": ")[1], ',', 10));
+                : $this->setEventsLine($this->explodeLine($this->explodeLine($line, ': ')[1], ',', 10));
         }
     }
 
