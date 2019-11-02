@@ -1,220 +1,60 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Aegisub;
+
+use Aegisub\Contracts\Extractor;
+use Aegisub\Contracts\Processor;
+use Aegisub\Exceptions\FileNotFoundException;
+use Aegisub\Exceptions\FileNotValidException;
 
 class Ass
 {
-    protected const SCRIPT_BLOCK = '﻿[Script Info]';
-    protected const GARBAGE_BLOCK = '[Aegisub Project Garbage]';
-    protected const STYLES_V4 = '[V4 Styles]';
-    protected const STYLES_V4PLUS = '[V4+ Styles]';
-    protected const EVENTS = '[Events]';
-    protected const EXTRA_DATA = '[Aegisub Extradata]';
-    protected const HEADERS = 'Format: ';
-    protected const BREAKLINE = "\r\n";
-    public $scriptInfoHeaders = [];
-    public $scriptInfo = [];
-    public $stylesHeaders;
-    public $styles = [];
-    public $eventsHeaders;
-    public $events = [];
-    protected $block;
-    protected $change;
+    use Processor, Extractor;
 
-    public function parse($data)
+    /**
+     * All the file content.
+     *
+     * @var array
+     */
+    private $file;
+
+    /**
+     * Ass constructor.
+     *
+     * @param $filename
+     * @throws FileNotValidException
+     * @throws FileNotFoundException
+     */
+    public function __construct($filename)
     {
-        if ($this->isASS($data = collect(explode(self::BREAKLINE, file_get_contents($data))))) {
-            foreach ($data as $line) {
-                !$this->isChangeBlock() ?: $this->setBlock($this->checkBlock($line));
+        $this->file = $this->extractFile($filename);
+        $this->parse();
+    }
 
-                empty($line) ?: $this->extractBlock($line);
-
-                $this->checkChangeBlock($line);
-            }
-
-            return $this->cleaner();
+    /**
+     * Parse .ass to an Ass object.
+     *
+     * @return Ass
+     * @throws FileNotValidException
+     */
+    private function parse(): Ass
+    {
+        if ($this->isAValidAss()) {
+            return $this->processFile();
         }
 
-        throw new \Aegisub\Exceptions\FileNotValidException('It is not a valid file.');
+        throw new FileNotValidException('It is not an ass valid file.');
     }
 
-    private function isASS($data)
+    /**
+     * Transform the object to json string.
+     *
+     * @return string
+     */
+    public function __toString()
     {
-        if ($data[0] === self::SCRIPT_BLOCK) {
-            $this->setBlock($this->checkBlock($data[0]));
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private function setBlock($block)
-    {
-        $this->block = $block;
-        $this->change = false;
-    }
-
-    private function checkBlock($line)
-    {
-        switch ($line) {
-            case self::SCRIPT_BLOCK:
-                return 1;
-            case self::GARBAGE_BLOCK:
-                return 2;
-            case self::STYLES_V4:
-            case self::STYLES_V4PLUS:
-                return 3;
-            case self::EVENTS:
-                return 4;
-            case self::EXTRA_DATA:
-                return 5;
-            default:
-                return -1;
-        }
-    }
-
-    private function isChangeBlock()
-    {
-        return $this->change;
-    }
-
-    private function extractBlock($line)
-    {
-        switch ($this->getBlock()) {
-            case 1:
-                $this->setInfo($line);
-                break;
-            case 3:
-                $this->setStyles($line);
-                break;
-            case 4:
-                $this->setEvents($line);
-                break;
-        }
-    }
-
-    private function getBlock()
-    {
-        return $this->block;
-    }
-
-    private function setInfo($line)
-    {
-        if ($line !== self::SCRIPT_BLOCK && $line[0] !== ';') {
-            $this->setScript($line);
-        }
-    }
-
-    private function setScript($line)
-    {
-        foreach ($this->explodeLine($line, ': ') as $key => $value) {
-            $key === 0 ? $this->setScriptHeaders($value) : $this->setScriptLine($value);
-        }
-    }
-
-    private function explodeLine($line, $delimiter, $limit = false)
-    {
-        return !$limit ? explode($delimiter, $line) : explode($delimiter, $line, $limit);
-    }
-
-    private function setScriptHeaders($line)
-    {
-        array_push($this->scriptInfoHeaders, $line);
-    }
-
-    private function setScriptLine($line)
-    {
-        array_push($this->scriptInfo, $line);
-    }
-
-    private function setStyles($line)
-    {
-        if ($line !== self::STYLES_V4PLUS && $line !== self::STYLES_V4) {
-            str_contains($line, self::HEADERS)
-                ? $this->setStylesHeaders($this->explodeLine($this->explodeLine($line, ': ')[1], ', '))
-                : $this->setStylesLine($this->explodeLine($this->explodeLine($line, ': ')[1], ','));
-        }
-    }
-
-    private function setStylesHeaders($line)
-    {
-        $this->stylesHeaders = $line;
-    }
-
-    private function setStylesLine($line)
-    {
-        array_push($this->styles, $line);
-    }
-
-    private function setEvents($line)
-    {
-        if ($line !== self::EVENTS) {
-            str_contains($line, self::HEADERS)
-                ? $this->setEventsHeaders($this->explodeLine($this->explodeLine($line, ': ')[1], ', '))
-                : $this->setEventsLine($this->explodeLine($this->explodeLine($line, ': ')[1], ',', 10));
-        }
-    }
-
-    private function setEventsHeaders($line)
-    {
-        $this->eventsHeaders = $line;
-    }
-
-    private function setEventsLine($line)
-    {
-        array_push($this->events, $line);
-    }
-
-    private function checkChangeBlock($line)
-    {
-        $this->change = empty($line) ? true : false;
-    }
-
-    private function cleaner()
-    {
-        $this->reformatter();
-
-        $this->unsetting();
-
-        return $this;
-    }
-
-    private function reformatter()
-    {
-        $this->scriptInfo = $this->reformatInside($this->scriptInfoHeaders, $this->scriptInfo);
-        $this->styles = $this->reformat($this->stylesHeaders, $this->styles);
-        $this->events = $this->reformat($this->eventsHeaders, $this->events);
-    }
-
-    private function reformat($header, $formatting)
-    {
-        $arr = [];
-
-        foreach ($formatting as $style) {
-            array_push($arr, $this->reformatInside($header, $style));
-        }
-
-        return $arr;
-    }
-
-    private function reformatInside($header, $formatting)
-    {
-        $obj = app()->make('StdClass');
-
-        for ($i = 0; $i < count($header); $i++) {
-            $obj->{camel_case($header[$i])} = $formatting[$i];
-        }
-
-        return $obj;
-    }
-
-    private function unsetting()
-    {
-        $unset = ['block', 'change', 'scriptInfoHeaders', 'stylesHeaders', 'eventsHeaders'];
-
-        foreach ($unset as $str) {
-            unset($this->$str);
-        }
+        return (string) json_encode($this, JSON_PRETTY_PRINT);
     }
 }

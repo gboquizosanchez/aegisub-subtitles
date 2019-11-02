@@ -1,0 +1,5 @@
+/.idea
+/vendor
+/debug
+/ass
+.php_cs.cache

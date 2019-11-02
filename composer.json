@@ -1,22 +1,30 @@
 {
-    "name": "aegisub/subtitles",
-    "description": "Parser for ass subtitles",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Cheke",
-            "email": "xekevara@gmail.com"
-        }
+  "name": "aegisub/subtitles",
+  "description": "Parser for ass subtitles",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Cheke",
+      "email": "xekevara@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "ext-mbstring": "*",
+    "ext-json": "*"
+  },
+  "keywords": [
+    "ssa",
+    "ass",
+    "subtitle"
+  ],
+  "autoload": {
+    "files": [
+      "src/Utilities/utilities.php"
     ],
-    "minimum-stability": "dev",
-    "require": {
-        "php": ">=7.1"
-    },
-    "keywords": ["ssa", "ass", "subtitle"],
-    "autoload": {
-        "psr-4": {
-            "Aegisub\\": "src/"
-        }
-    }  
+    "psr-4": {
+      "Aegisub\\": "src/"
+    }
+  }
 }

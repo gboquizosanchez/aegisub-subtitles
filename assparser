@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+use Aegisub\Parser;
+
+require __DIR__.'/vendor/autoload.php';
+
+$arguments = getopt('f:', ['file:']);
+
+(new Parser())->make($arguments['file'] ?? $arguments['f'] ?? '');

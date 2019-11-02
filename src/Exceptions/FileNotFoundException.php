@@ -6,7 +6,7 @@ namespace Aegisub\Exceptions;
 
 use Exception;
 
-class FileNotValidException extends Exception
+class FileNotFoundException extends Exception
 {
     //
 }
