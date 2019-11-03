@@ -7,7 +7,7 @@ namespace Aegisub;
 class Logger
 {
     /**
-     * File to write
+     * File to write.
      *
      * @var bool|resource
      */
@@ -17,7 +17,7 @@ class Logger
      * Logger constructor.
      *
      * @param $filename
-     * @param  string  $extension
+     * @param string $extension
      */
     public function __construct(string $filename, $extension = 'ass')
     {
@@ -27,7 +27,7 @@ class Logger
     /**
      * Write line into the file.
      *
-     * @param  string|null  $string
+     * @param string|null $string
      */
     public function write(?string $string): void
     {

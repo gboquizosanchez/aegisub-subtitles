@@ -10,4 +10,5 @@ class Delimiters extends Enum
     public const SEMICOLON = ';';
     public const COMMA_WITH_SPACE = ', ';
     public const COMMA = ',';
+    public const SLASH = '/';
 }

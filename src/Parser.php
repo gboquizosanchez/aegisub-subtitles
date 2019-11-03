@@ -12,7 +12,7 @@ class Parser
     public function make($filename): void
     {
         try {
-            echo (string) (new Ass($filename));
+            (new Ass($filename))->compose();
         } catch (FileNotFoundException | FileNotValidException $exception) {
             echo $exception->getMessage();
         }

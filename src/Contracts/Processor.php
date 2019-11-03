@@ -52,7 +52,8 @@ trait Processor
     /**
      * Establish blocks and process lines not empties.
      *
-     * @param  string  $line
+     * @param string $line
+     *
      * @return void
      */
     private function processLine(string $line): void
@@ -65,7 +66,7 @@ trait Processor
     /**
      * Lines not empty are processed only.
      *
-     * @param  string|null  $line
+     * @param string|null $line
      * @retun void
      */
     private function processNotEmptyLine(?string $line): void
@@ -79,6 +80,7 @@ trait Processor
      * Establish block only when blocks lines in file are founded.
      *
      * @param $line
+     *
      * @return void
      */
     private function establishBlock($line): void
@@ -91,7 +93,8 @@ trait Processor
     /**
      * Check if is a header file block contained in the file.
      *
-     * @param  string|null  $line
+     * @param string|null $line
+     *
      * @return bool
      */
     private function isFileBlock(?string $line): bool
@@ -100,6 +103,7 @@ trait Processor
             return in_array($line, FileBlocks::getValues(), true);
         } catch (ReflectionException $exception) {
             echo $exception->getMessage();
+
             return false;
         }
     }
@@ -108,6 +112,8 @@ trait Processor
      * Fill the different blocks through $block var.
      *
      * @param string $line
+     *
+     * @return void
      */
     private function fill(string $line): void
     {
@@ -131,6 +137,7 @@ trait Processor
      *
      * @param $block
      * @param $line
+     *
      * @return void
      */
     private function setBlock($block, $line): void

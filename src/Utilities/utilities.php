@@ -10,6 +10,7 @@ if (!function_exists('contains')) {
                 return true;
             }
         }
+
         return false;
     }
 }

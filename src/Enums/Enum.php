@@ -12,12 +12,14 @@ class Enum
     /**
      * Give all values of the class.
      *
-     * @return array
      * @throws ReflectionException
+     *
+     * @return array
      */
     public static function getValues(): array
     {
         $reflectionClass = new ReflectionClass(static::class);
+
         return array_values($reflectionClass->getConstants());
     }
 }

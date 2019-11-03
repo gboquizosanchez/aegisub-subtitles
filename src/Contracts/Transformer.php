@@ -25,6 +25,27 @@ trait Transformer
     private $array = [];
 
     /**
+     * Script block.
+     *
+     * @var array
+     */
+    public $script;
+
+    /**
+     * Style block.
+     *
+     * @var array
+     */
+    public $styles;
+
+    /**
+     * Event block.
+     *
+     * @var array
+     */
+    public $events;
+
+    /**
      * Transform file into an valid Ass object.
      *
      * @return $this
@@ -81,7 +102,7 @@ trait Transformer
      * Fill all block and establish it into an object attribute.
      * The name of the block is given by the block.
      *
-     * @param  string  $block
+     * @param string $block
      */
     private function extractBlock(string $block): void
     {
@@ -123,7 +144,8 @@ trait Transformer
      * Format the attribute line without spaces
      * and with the first letter into lowercase.
      *
-     * @param  string  $string
+     * @param string $string
+     *
      * @return string
      */
     private function formatAttribute(string $string): string
@@ -135,7 +157,8 @@ trait Transformer
      * Check if is the line is the first
      * in the array block.
      *
-     * @param  string  $line
+     * @param string $line
+     *
      * @return bool
      */
     private function isNotFirstLine(string $line): bool
@@ -146,7 +169,8 @@ trait Transformer
     /**
      * Extract all values contained into the line.
      *
-     * @param  string  $line
+     * @param string $line
+     *
      * @return array
      */
     private function extractValues(string $line): array

@@ -6,12 +6,13 @@ namespace Aegisub;
 
 use Aegisub\Contracts\Extractor;
 use Aegisub\Contracts\Processor;
+use Aegisub\Contracts\Writer;
 use Aegisub\Exceptions\FileNotFoundException;
 use Aegisub\Exceptions\FileNotValidException;
 
 class Ass
 {
-    use Processor, Extractor;
+    use Processor, Extractor, Writer;
 
     /**
      * All the file content.
@@ -24,6 +25,7 @@ class Ass
      * Ass constructor.
      *
      * @param $filename
+     *
      * @throws FileNotValidException
      * @throws FileNotFoundException
      */
@@ -36,10 +38,11 @@ class Ass
     /**
      * Parse .ass to an Ass object.
      *
-     * @return Ass
      * @throws FileNotValidException
+     *
+     * @return Ass
      */
-    private function parse(): Ass
+    private function parse(): self
     {
         if ($this->isAValidAss()) {
             return $this->processFile();
