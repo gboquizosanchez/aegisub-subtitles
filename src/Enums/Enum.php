@@ -17,7 +17,7 @@ class Enum
      */
     public static function getValues(): array
     {
-        $reflectionClass = new ReflectionClass(__CLASS__);
+        $reflectionClass = new ReflectionClass(static::class);
         return array_values($reflectionClass->getConstants());
     }
 }

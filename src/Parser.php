@@ -1,19 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Aegisub;
 
 use Aegisub\Exceptions\FileNotFoundException;
+use Aegisub\Exceptions\FileNotValidException;
 
 class Parser
 {
     public function make($filename): void
     {
         try {
-            print_r(new Ass($filename));
-        } catch (FileNotFoundException $exception) {
-            print_r($exception->getMessage());
+            echo (string) (new Ass($filename));
+        } catch (FileNotFoundException | FileNotValidException $exception) {
+            echo $exception->getMessage();
         }
     }
-
-
 }

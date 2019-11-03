@@ -41,6 +41,8 @@ trait Transformer
 
         $this->extractBlock(Blocks::EVENTS);
 
+        $this->clean();
+
         return $this;
     }
 
@@ -174,5 +176,15 @@ trait Transformer
     private function reset(): void
     {
         $this->object = (object) [];
+    }
+
+    /**
+     * Destroy aux variables.
+     *
+     * @return void
+     */
+    private function clean(): void
+    {
+        unset($this->object, $this->array);
     }
 }

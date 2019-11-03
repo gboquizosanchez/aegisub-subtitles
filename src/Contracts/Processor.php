@@ -6,6 +6,7 @@ namespace Aegisub\Contracts;
 
 use Aegisub\Enums\Blocks;
 use Aegisub\Enums\FileBlocks;
+use ReflectionException;
 
 trait Processor
 {
@@ -95,7 +96,12 @@ trait Processor
      */
     private function isFileBlock(?string $line): bool
     {
-        return in_array($line, FileBlocks::getValues(), true);
+        try {
+            return in_array($line, FileBlocks::getValues(), true);
+        } catch (ReflectionException $exception) {
+            echo $exception->getMessage();
+            return false;
+        }
     }
 
     /**
