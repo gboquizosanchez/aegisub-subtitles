@@ -10,9 +10,10 @@
     }
   ],
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.3",
     "ext-mbstring": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "tightenco/collect": "^6.4"
   },
   "keywords": [
     "ssa",

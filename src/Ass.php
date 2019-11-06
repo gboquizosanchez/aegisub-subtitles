@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aegisub;
 
+use Aegisub\Contracts\Analyzer;
 use Aegisub\Contracts\Extractor;
 use Aegisub\Contracts\Processor;
 use Aegisub\Contracts\Writer;
@@ -12,7 +13,7 @@ use Aegisub\Exceptions\FileNotValidException;
 
 class Ass
 {
-    use Processor, Extractor, Writer;
+    use Processor, Extractor, Writer, Analyzer;
 
     /**
      * All the file content.

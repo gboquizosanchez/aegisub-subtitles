@@ -31,6 +31,6 @@ class Logger
      */
     public function write(?string $string): void
     {
-        fwrite($this->file, $string ?? '');
+        fwrite($this->file, $string.PHP_EOL ?? '');
     }
 }
