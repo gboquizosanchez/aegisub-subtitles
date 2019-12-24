@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 use Aegisub\Parser;
 
-require __DIR__.'/vendor/autoload.php';
+if (PHP_SAPI) {
+    require __DIR__.'/vendor/autoload.php';
 
-$arguments = getopt('f:', ['file:']);
+    $arguments = getopt('f:bac', ['file:']);
 
-(new Parser())->make($arguments['file'] ?? $arguments['f'] ?? '');
+    $filename = $arguments['file'] ?? $arguments['f'] ?? '';
+
+    unset($arguments['file'], $arguments['f']);
+
+    (new Parser())->make($filename, $arguments);
+}

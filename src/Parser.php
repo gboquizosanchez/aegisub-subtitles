@@ -9,12 +9,12 @@ use Aegisub\Exceptions\FileNotValidException;
 
 class Parser
 {
-    public function make($filename): void
+    public function make(string $filename, array $arguments): void
     {
         try {
             $ass = new Ass($filename);
             $ass->analyze();
-            $ass->compose();
+            $ass->compose($arguments);
         } catch (FileNotFoundException | FileNotValidException $exception) {
             echo $exception->getMessage();
         }

@@ -15,7 +15,7 @@ trait Extractor
      *
      * @var string
      */
-    public $filename;
+    public string $filename;
 
     /**
      * Extract file if is a valid file.

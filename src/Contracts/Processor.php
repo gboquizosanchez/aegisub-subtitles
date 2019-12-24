@@ -19,7 +19,7 @@ trait Processor
      *
      * @var string
      */
-    protected $block;
+    protected string $block;
 
     /**
      * Process all the Ass file and transform it to a valid object.

@@ -15,35 +15,35 @@ trait Transformer
      *
      * @var object
      */
-    private $object;
+    private object $object;
 
     /**
      * Empty array only for fill purposes.
      *
      * @var array
      */
-    private $array = [];
+    private array $array = [];
 
     /**
      * Script block.
      *
      * @var array
      */
-    public $script;
+    public array $script;
 
     /**
      * Style block.
      *
      * @var array
      */
-    public $styles;
+    public array $styles;
 
     /**
      * Event block.
      *
      * @var array
      */
-    public $events;
+    public array $events;
 
     /**
      * Transform file into an valid Ass object.
@@ -81,7 +81,7 @@ trait Transformer
             }
         }
 
-        $this->{Blocks::SCRIPT} = $this->object;
+        $this->{Blocks::SCRIPT} = (array) $this->object;
 
         $this->reset();
     }

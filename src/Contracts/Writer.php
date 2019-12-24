@@ -24,14 +24,16 @@ trait Writer
      *
      * @var string
      */
-    private $path = 'conversion';
+    private string $path = 'conversion';
 
     /**
      * Write a new file.
      *
+     * @param array $arguments
+     *
      * @return void
      */
-    public function compose(): void
+    public function compose(array $arguments = null): void
     {
         $this->openFile();
 
@@ -39,11 +41,13 @@ trait Writer
 
         $this->writeBlock(Blocks::STYLES);
 
-        $this->deletedBrackets();
+        if (isset($arguments['b'])) {
+            $this->deletedBrackets();
+        }
 
         $this->writeBlock(Blocks::EVENTS);
 
-        fclose($this->newFile);
+        $this->closer();
     }
 
     /**
@@ -59,9 +63,9 @@ trait Writer
 
         foreach ($this->script as $key => $value) {
             if (end($this->script) === $value) {
-                $key = substr($key, 0, 5).' '.substr($key, 5, 10);
+                $key = substr((string) $key, 0, 5).' '.substr((string) $key, 5, 10);
             }
-            $this->write(ucfirst($key).Delimiters::COLON_WITH_SPACE.$value.PHP_EOL);
+            $this->write(ucfirst((string) $key).Delimiters::COLON_WITH_SPACE.$value.PHP_EOL);
         }
 
         $this->write(PHP_EOL);
@@ -93,15 +97,17 @@ trait Writer
      *
      * @param string $string
      *
-     * @return string|null
+     * @return string
      */
-    private function headerLine(string $string): ?string
+    private function headerLine(string $string): string
     {
         switch ($string) {
             case Blocks::EVENTS:
                 return Lines::HEADERS;
             case Blocks::STYLES:
                 return Lines::STYLE;
+            default:
+                return '';
         }
     }
 
@@ -110,15 +116,17 @@ trait Writer
      *
      * @param string $string
      *
-     * @return string|null
+     * @return string
      */
-    private function headerBlock(string $string): ?string
+    private function headerBlock(string $string): string
     {
         switch ($string) {
             case Blocks::EVENTS:
                 return FileBlocks::EVENTS;
             case Blocks::STYLES:
                 return FileBlocks::STYLES_V4PLUS;
+            default:
+                return '';
         }
     }
 
@@ -127,15 +135,17 @@ trait Writer
      *
      * @param string $string
      *
-     * @return string|null
+     * @return string
      */
-    private function lineType(string $string): ?string
+    private function lineType(string $string): string
     {
         switch ($string) {
             case Blocks::EVENTS:
                 return Lines::DIALOGUE;
             case Blocks::STYLES:
                 return Lines::STYLE;
+            default:
+                return '';
         }
     }
 
@@ -190,8 +200,6 @@ trait Writer
     /**
      * Delete all lines with {} inside.
      *
-     * @todo call through argument line.
-     *
      * @return void
      */
     private function deletedBrackets(): void
@@ -199,5 +207,16 @@ trait Writer
         foreach ($this->events as $event) {
             $event->text = preg_replace('/{.+}/', '', $event->text);
         }
+    }
+
+    /**
+     * Close resource and unset variables.
+     *
+     * @return void
+     */
+    private function closer(): void
+    {
+        fclose($this->newFile);
+        unset($this->newFile, $this->path);
     }
 }

@@ -20,7 +20,7 @@ class Ass
      *
      * @var array
      */
-    private $file;
+    private array $file;
 
     /**
      * Ass constructor.
@@ -57,8 +57,8 @@ class Ass
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) json_encode($this, JSON_PRETTY_PRINT);
+        return (string) json_encode($this, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, 512);
     }
 }
