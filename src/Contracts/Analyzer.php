@@ -35,7 +35,7 @@ trait Analyzer
     private object $auxiliary;
 
     /**
-     * Start analyzing .ass
+     * Start analyzing .ass.
      *
      * @return void
      */
@@ -85,7 +85,6 @@ trait Analyzer
         $this->checked->ending = $this->searchOnStyleName('ED');
         $this->checked->notBlurred = $this->notBlurred();
     }
-
 
     /**
      * Extract unused styles.

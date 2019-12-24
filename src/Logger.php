@@ -25,10 +25,10 @@ class Logger
     /**
      * Logger constructor.
      *
-     * @param $filename
+     * @param string $filename
      * @param string $extension
      */
-    public function __construct(string $filename, $extension = 'ass')
+    public function __construct(string $filename, string $extension = 'ass')
     {
         $this->file = fopen("debug/{$filename}.{$extension}", 'wb+');
     }
@@ -37,8 +37,7 @@ class Logger
      * Write a line with EOL.
      *
      * @param string|null $string
-     *
-     * @param null $type
+     * @param null        $type
      *
      * @return void
      */
@@ -53,7 +52,7 @@ class Logger
      * Write a separator with 120 characters by default.
      *
      * @param string $string
-     * @param int $amount
+     * @param int    $amount
      *
      * @return void
      */
