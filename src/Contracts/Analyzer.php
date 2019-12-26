@@ -19,16 +19,8 @@ trait Analyzer
     private Logger $analyzerLog;
 
     /**
-     * Auxiliary variable to print into quality.txt
-     * once .ass is analyzed.
-     *
-     * @var object
-     */
-    private object $checked;
-
-    /**
-     * Another auxiliary variable that is needed in order to use
-     * styles, events... to established as collection instead of array.
+     * Auxiliary variable that is needed in order to use styles, events...
+     * In order to established as collection instead of array.
      *
      * @var object
      */
@@ -53,7 +45,6 @@ trait Analyzer
     private function run(): void
     {
         $this->auxiliar();
-        $this->handleAss();
         $this->printer();
     }
 
@@ -72,18 +63,34 @@ trait Analyzer
     }
 
     /**
-     * Establish all needed to be printed.
+     * Extract font names.
      *
-     * @return void
+     * @return Collection
      */
-    private function handleAss(): void
+    private function fonts(): Collection
     {
-        $this->checked = (object) [];
-        $this->checked->unusedStyles = $this->unusedStyles();
-        $this->checked->fonts = $this->auxiliary->styles->pluck('fontname')->filter();
-        $this->checked->opening = $this->searchOnStyleName('OP');
-        $this->checked->ending = $this->searchOnStyleName('ED');
-        $this->checked->notBlurred = $this->notBlurred();
+        return $this->auxiliary->styles->pluck('fontname')->filter();
+    }
+
+    /**
+     * Check if all lines are in order.
+     *
+     * @return int
+     */
+    private function unsynchronized(): int
+    {
+        $prev = (object) [];
+
+        $counter = 0;
+
+        foreach ($array = $this->events as $key => $event) {
+            if (($key !== array_key_first($array)) && strtotime($prev->end) > strtotime($event->start)) {
+                $counter++;
+            }
+            $prev = $event;
+        }
+
+        return $counter;
     }
 
     /**
@@ -161,16 +168,19 @@ trait Analyzer
      */
     private function printStyles(): void
     {
-        $this->checked->unusedStyles->isEmpty()
+        $unused = $this->unusedStyles();
+        $fonts = $this->fonts();
+
+        $unused->isEmpty()
             ? $this->analyzerLog->write('There are no styles', 'center')
-            : $this->analyzerLog->write('Unused  ➡ '.$this->checked->unusedStyles->implode(', '));
+            : $this->analyzerLog->write("Unused  ➡ {$unused->implode(', ')}");
 
-        $this->checked->fonts->isEmpty()
+        $fonts->isEmpty()
             ? $this->analyzerLog->write('There are no fonts', 'center')
-            : $this->analyzerLog->write('Fonts   ➡ '.$this->checked->fonts->implode(', '));
+            : $this->analyzerLog->write("Fonts   ➡ {$fonts->implode(', ')}");
 
-        $this->analyzerLog->write("Opening ➡ {$this->checked->opening}");
-        $this->analyzerLog->write("Ending  ➡ {$this->checked->ending}");
+        $this->analyzerLog->write("Opening ➡ {$this->searchOnStyleName('OP')}");
+        $this->analyzerLog->write("Ending  ➡ {$this->searchOnStyleName('ED')}");
     }
 
     /**
@@ -180,6 +190,7 @@ trait Analyzer
      */
     private function printLines(): void
     {
-        $this->analyzerLog->write("Not blurred ➡ {$this->checked->notBlurred}");
+        $this->analyzerLog->write("Not blurred    ➡ {$this->notBlurred()}");
+        $this->analyzerLog->write("Unsynchronized ➡ {$this->unsynchronized()}");
     }
 }
