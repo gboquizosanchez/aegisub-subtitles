@@ -7,6 +7,7 @@ namespace Aegisub\Contracts;
 use Aegisub\Enums\Delimiters;
 use Aegisub\Enums\Tags;
 use Aegisub\Logger;
+use ReflectionException;
 use Tightenco\Collect\Support\Collection;
 
 trait Analyzer
@@ -84,7 +85,7 @@ trait Analyzer
         $counter = 0;
 
         foreach ($array = $this->events as $key => $event) {
-            if (($key !== array_key_first($array)) && strtotime($prev->end) > strtotime($event->start)) {
+            if (($key !== array_key_first($array)) && strtotime($event->start) < strtotime($prev->end)) {
                 $counter++;
             }
             $prev = $event;
@@ -124,9 +125,27 @@ trait Analyzer
      */
     private function notBlurred(): int
     {
-        $blurred = $this->auxiliary->events->map(fn ($event) => contains($event->text, Tags::BLUR))->filter()->count();
+        $blurred = $this->auxiliary->events->map(fn ($event) => $this->isBlurred($event->text))->filter()->count();
 
         return $this->auxiliary->events->count() - $blurred;
+    }
+
+    /**
+     * Check if a line is blurred.
+     *
+     * @param $text
+     *
+     * @return bool
+     * @throws ReflectionException
+     */
+    private function isBlurred($text): bool
+    {
+        foreach (Tags::getValues() as $value) {
+            if (preg_match("/{$value}/", $text, $matches)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
