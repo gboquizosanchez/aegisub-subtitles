@@ -131,11 +131,13 @@ trait Transformer
      */
     private function extractAttributes(): array
     {
-        $firstLine = reset($this->{$this->block});
+        $line = reset($this->{$this->block});
 
-        $erasedLine = str_replace(Lines::HEADERS, '', $firstLine);
+        $firstLine = explode(Delimiters::COLON_WITH_SPACE, $line);
 
-        $splitLine = explode(Delimiters::COMMA_WITH_SPACE, $erasedLine);
+        $splitLine = explode(Delimiters::COMMA_WITH_SPACE, $firstLine[1]);
+
+        array_unshift($splitLine, $firstLine[0]);
 
         return array_map([$this, 'formatAttribute'], $splitLine);
     }
@@ -175,20 +177,15 @@ trait Transformer
      */
     private function extractValues(string $line): array
     {
-        $header = '';
-        $limit = -1;
+        $limit = $this->block === Blocks::EVENTS ? 10 : -1;
 
-        switch ($this->block) {
-            case Blocks::STYLES:
-                $header = Lines::STYLE;
-                break;
-            case Blocks::EVENTS:
-                $header = Lines::DIALOGUE;
-                $limit = 10;
-                break;
-        }
+        $firstLine = explode(Delimiters::COLON_WITH_SPACE, $line);
 
-        return explode(Delimiters::COMMA, str_replace($header, '', $line), $limit);
+        $values = explode(Delimiters::COMMA, $firstLine[1], $limit);
+
+        array_unshift($values, $firstLine[0]);
+
+        return $values;
     }
 
     /**

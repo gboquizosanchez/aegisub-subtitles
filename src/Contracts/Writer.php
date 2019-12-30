@@ -83,32 +83,13 @@ trait Writer
         $firstBlockLine = reset($this->$block);
 
         $this->write($this->headerBlock($block).PHP_EOL);
-        $this->write($this->headerLine($block).$this->keysCommaSeparated($firstBlockLine).PHP_EOL);
+        $this->write('Format: '.$this->keysCommaSeparated((array) $firstBlockLine).PHP_EOL);
 
         foreach ($this->$block as $line) {
-            $this->write($this->lineType($block).$this->valuesCommaSeparated($line).PHP_EOL);
+            $this->write($this->valuesCommaSeparated((array) $line).PHP_EOL);
         }
 
         $this->write(PHP_EOL);
-    }
-
-    /**
-     * Return the header line.
-     *
-     * @param string $string
-     *
-     * @return string
-     */
-    private function headerLine(string $string): string
-    {
-        switch ($string) {
-            case Blocks::EVENTS:
-                return Lines::HEADERS;
-            case Blocks::STYLES:
-                return Lines::STYLE;
-            default:
-                return '';
-        }
     }
 
     /**
@@ -131,25 +112,6 @@ trait Writer
     }
 
     /**
-     * Return the type correct of start of line.
-     *
-     * @param string $string
-     *
-     * @return string
-     */
-    private function lineType(string $string): string
-    {
-        switch ($string) {
-            case Blocks::EVENTS:
-                return Lines::DIALOGUE;
-            case Blocks::STYLES:
-                return Lines::STYLE;
-            default:
-                return '';
-        }
-    }
-
-    /**
      * Write in the new file.
      *
      * @param string $string
@@ -162,25 +124,33 @@ trait Writer
     /**
      * Glue keys of a line with commas.
      *
-     * @param $values
+     * @param array $values
      *
      * @return string
      */
-    private function keysCommaSeparated($values): string
+    private function keysCommaSeparated(array $values): string
     {
-        return implode(Delimiters::COMMA_WITH_SPACE, array_map('ucfirst', array_keys((array) $values)));
+        array_shift($values);
+
+        return implode(Delimiters::COMMA_WITH_SPACE, array_map('ucfirst', array_keys($values)));
     }
 
     /**
      * Glue values of a line with commas.
      *
-     * @param $values
+     * @param array $values
      *
      * @return string
      */
-    private function valuesCommaSeparated($values): string
+    private function valuesCommaSeparated(array $values): string
     {
-        return implode(Delimiters::COMMA, array_map('ucfirst', array_values((array) $values)));
+        $firstLine = reset($values);
+
+        array_shift($values);
+
+        $line = implode(Delimiters::COMMA, array_map('ucfirst', array_values($values)));
+
+        return $firstLine.Delimiters::COLON_WITH_SPACE.$line;
     }
 
     /**
