@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aegisub\Contracts;
 
 use Aegisub\Enums\Delimiters;
+use Aegisub\Enums\Monosyllables;
 use Aegisub\Enums\Tags;
 use Aegisub\Logger;
 use ReflectionException;
@@ -64,91 +65,6 @@ trait Analyzer
     }
 
     /**
-     * Extract font names.
-     *
-     * @return Collection
-     */
-    private function fonts(): Collection
-    {
-        return $this->auxiliary->styles->pluck('fontname')->filter();
-    }
-
-    /**
-     * Check if all lines are in order.
-     *
-     * @return int
-     */
-    private function unsynchronized(): int
-    {
-        $prev = (object) [];
-
-        $counter = 0;
-
-        foreach ($array = $this->events as $key => $event) {
-            if (($key !== array_key_first($array)) && strtotime($event->start) < strtotime($prev->end)) {
-                $counter++;
-            }
-            $prev = $event;
-        }
-
-        return $counter;
-    }
-
-    /**
-     * Extract unused styles.
-     *
-     * @return Collection
-     */
-    private function unusedStyles(): Collection
-    {
-        $stylesUsed = $this->auxiliary->events->pluck('style')->unique();
-
-        return $this->auxiliary->styles->pluck('name')->diff($stylesUsed)->filter();
-    }
-
-    /**
-     * Search word on style name and count all of it.
-     *
-     * @param string $needle
-     *
-     * @return int|null
-     */
-    private function searchOnStyleName(string $needle): ?int
-    {
-        return $this->auxiliary->styles->map(fn ($style): bool => contains($style->name, $needle))->filter()->count();
-    }
-
-    /**
-     * Check what amount of lines are not blurred.
-     *
-     * @return int
-     */
-    private function notBlurred(): int
-    {
-        $blurred = $this->auxiliary->events->map(fn ($event) => $this->isBlurred($event->text))->filter()->count();
-
-        return $this->auxiliary->events->count() - $blurred;
-    }
-
-    /**
-     * Check if a line is blurred.
-     *
-     * @param $text
-     *
-     * @return bool
-     * @throws ReflectionException
-     */
-    private function isBlurred($text): bool
-    {
-        foreach (Tags::getValues() as $value) {
-            if (preg_match("/{$value}/", $text, $matches)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Print all quality.txt file.
      *
      * @return void
@@ -203,13 +119,181 @@ trait Analyzer
     }
 
     /**
+     * Extract unused styles.
+     *
+     * @return Collection
+     */
+    private function unusedStyles(): Collection
+    {
+        $stylesUsed = $this->auxiliary->events->pluck('style')->unique();
+
+        return $this->auxiliary->styles->pluck('name')->diff($stylesUsed)->filter();
+    }
+
+    /**
+     * Extract font names.
+     *
+     * @return Collection
+     */
+    private function fonts(): Collection
+    {
+        return $this->auxiliary->styles->pluck('fontname')->filter();
+    }
+
+    /**
+     * Search word on style name and count all of it.
+     *
+     * @param string $needle
+     *
+     * @return int|null
+     */
+    private function searchOnStyleName(string $needle): ?int
+    {
+        return $this->auxiliary->styles->map(fn ($style): bool => contains($style->name, $needle))->filter()->count();
+    }
+
+    /**
      * Print all related about lines section.
      *
      * @return void
      */
     private function printLines(): void
     {
+        $this->analyzerLog->write("Commented      ➡ {$this->commented()}");
         $this->analyzerLog->write("Not blurred    ➡ {$this->notBlurred()}");
         $this->analyzerLog->write("Unsynchronized ➡ {$this->unsynchronized()}");
+        $this->analyzerLog->write("Monosyllables  ➡ {$this->searchOnEvents('monosyllable')}");
+        $this->analyzerLog->write("Stuttering     ➡ {$this->searchOnEvents('stuttering')}");
+    }
+
+    /**
+     * Give all commented lines.
+     *
+     * @return int
+     */
+    private function commented(): int
+    {
+        return $this->auxiliary->events->map(fn ($event) => $event->format === 'Comment')->filter()->count();
+    }
+
+    /**
+     * Check what amount of lines are not blurred.
+     *
+     * @return int
+     */
+    private function notBlurred(): int
+    {
+        return $this->auxiliary->events->count() - $this->searchOnEvents('blurred');
+    }
+
+    /**
+     * Search on events lines.
+     *
+     * @param $function
+     *
+     * @return int
+     */
+    private function searchOnEvents(string $function): int
+    {
+        $function = 'is'.ucfirst($function);
+
+        return $this->auxiliary->events->map(fn ($event) => $this->$function($event->text))->filter()->count();
+    }
+
+    /**
+     * Check if a line is blurred.
+     *
+     * @param $text
+     *
+     * @throws ReflectionException
+     *
+     * @return bool
+     */
+    private function isBlurred($text): bool
+    {
+        return $this->search(Tags::getValues(), $text);
+    }
+
+    /**
+     * Check if all lines are in order.
+     *
+     * @return int
+     */
+    private function unsynchronized(): int
+    {
+        $prev = (object) [];
+
+        $counter = 0;
+
+        foreach ($array = $this->events as $key => $event) {
+            if (($key !== array_key_first($array)) && strtotime($event->start) < strtotime($prev->end)) {
+                $counter++;
+            }
+            $prev = $event;
+        }
+
+        return $counter;
+    }
+
+    /**
+     * Search a pattern in a text.
+     *
+     * @param array|string $values
+     * @param string       $text
+     *
+     * @return bool
+     */
+    private function search($values, string $text): bool
+    {
+        if (is_string($values)) {
+            $values = [$values];
+        }
+
+        foreach ($values as $value) {
+            if (preg_match("/{$value}/", $text, $matches)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if is a monosyllable with unnecessary accent.
+     *
+     * @param $text
+     *
+     * @return bool
+     */
+    private function isMonosyllable($text): bool
+    {
+        $values = array_map(static function ($value): string {
+            $modifiers = '|\'|"|,|\.|}|—|-|';
+
+            return "(?:\s+{$modifiers}^)(?<monosyllable>{$value})(?:\s+$modifiers$)";
+        }, Monosyllables::REAL);
+
+        foreach ($values as $value) {
+            if (preg_match("/{$value}/i", $text, $matches)
+                && preg_match('/[áéíóúÁÉÍÓÚ]/u', $matches['monosyllable'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a line is stuttering.
+     *
+     * @param $text
+     *
+     * @return bool
+     */
+    private function isStuttering($text): bool
+    {
+        $upperCase = 'A-ZAÁÉÍÓÚ';
+
+        return $this->search("[{$upperCase}]u?-[{$upperCase}]u?", $text);
     }
 }
