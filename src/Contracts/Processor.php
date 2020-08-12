@@ -52,7 +52,7 @@ trait Processor
     /**
      * Establish blocks and process lines not empties.
      *
-     * @param string $line
+     * @param  string  $line
      *
      * @return void
      */
@@ -66,12 +66,13 @@ trait Processor
     /**
      * Lines not empty are processed only.
      *
-     * @param string|null $line
+     * @param  string|null  $line
+     *
      * @retun void
      */
     private function processNotEmptyLine(?string $line): void
     {
-        if (!empty($line) && !$this->isFileBlock($line)) {
+        if (! empty($line) && ! $this->isFileBlock($line)) {
             $this->fill($line);
         }
     }
@@ -93,7 +94,7 @@ trait Processor
     /**
      * Check if is a header file block contained in the file.
      *
-     * @param string|null $line
+     * @param  string|null  $line
      *
      * @return bool
      */
@@ -111,7 +112,7 @@ trait Processor
     /**
      * Fill the different blocks through $block var.
      *
-     * @param string $line
+     * @param  string  $line
      *
      * @return void
      */

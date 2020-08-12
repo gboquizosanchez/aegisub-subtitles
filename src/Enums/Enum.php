@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Aegisub\Enums;
 
 use ReflectionClass;
-use ReflectionException;
 
 class Enum
 {
     /**
      * Give all values of the class.
-     *
-     * @throws ReflectionException
      *
      * @return array
      */

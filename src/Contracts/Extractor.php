@@ -22,9 +22,9 @@ trait Extractor
      *
      * @param $filename
      *
+     * @return array
      * @throws FileNotFoundException
      *
-     * @return array
      */
     private function extractFile($filename): array
     {
@@ -38,7 +38,7 @@ trait Extractor
             return explode(PHP_EOL, $file);
         }
 
-        throw new FileNotFoundException('File not found');
+        throw new FileNotFoundException('File not found, please type -h for help');
     }
 
     /**

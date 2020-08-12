@@ -57,7 +57,7 @@ trait Analyzer
      */
     private function auxiliar(): void
     {
-        $this->auxiliary = (object) [];
+        $this->auxiliary = (object)[];
 
         foreach (['styles', 'events'] as $type) {
             $this->auxiliary->$type = collect($this->$type);
@@ -84,8 +84,8 @@ trait Analyzer
     /**
      * Print a section by a delimiter given.
      *
-     * @param string $string
-     * @param string $delimiter
+     * @param  string  $string
+     * @param  string  $delimiter
      *
      * @return void
      */
@@ -143,7 +143,7 @@ trait Analyzer
     /**
      * Search word on style name and count all of it.
      *
-     * @param string $needle
+     * @param  string  $needle
      *
      * @return int|null
      */
@@ -195,7 +195,7 @@ trait Analyzer
      */
     private function searchOnEvents(string $function): int
     {
-        $function = 'is'.ucfirst($function);
+        $function = 'is' . ucfirst($function);
 
         return $this->auxiliary->events->map(fn ($event) => $this->$function($event->text))->filter()->count();
     }
@@ -205,9 +205,9 @@ trait Analyzer
      *
      * @param $text
      *
+     * @return bool
      * @throws ReflectionException
      *
-     * @return bool
      */
     private function isBlurred($text): bool
     {
@@ -221,7 +221,7 @@ trait Analyzer
      */
     private function unsynchronized(): int
     {
-        $prev = (object) [];
+        $prev = (object)[];
 
         $counter = 0;
 
@@ -238,8 +238,8 @@ trait Analyzer
     /**
      * Search a pattern in a text.
      *
-     * @param array|string $values
-     * @param string       $text
+     * @param  array|string  $values
+     * @param  string  $text
      *
      * @return bool
      */
@@ -267,11 +267,14 @@ trait Analyzer
      */
     private function isMonosyllable($text): bool
     {
-        $values = array_map(static function ($value): string {
-            $modifiers = '|\'|"|,|\.|}|—|-|';
+        $values = array_map(
+            static function ($value): string {
+                $modifiers = '|\'|"|,|\.|}|—|-|';
 
-            return "(?:\s+{$modifiers}^)(?<monosyllable>{$value})(?:\s+$modifiers$)";
-        }, Monosyllables::REAL);
+                return "(?:\s+{$modifiers}^)(?<monosyllable>{$value})(?:\s+$modifiers$)";
+            },
+            Monosyllables::REAL
+        );
 
         foreach ($values as $value) {
             if (preg_match("/{$value}/i", $text, $matches)

@@ -7,7 +7,6 @@ namespace Aegisub\Contracts;
 use Aegisub\Enums\Blocks;
 use Aegisub\Enums\Delimiters;
 use Aegisub\Enums\FileBlocks;
-use Aegisub\Enums\Lines;
 use RuntimeException;
 
 trait Writer
@@ -29,7 +28,7 @@ trait Writer
     /**
      * Write a new file.
      *
-     * @param array $arguments
+     * @param  array  $arguments
      *
      * @return void
      */
@@ -57,15 +56,15 @@ trait Writer
      */
     private function writeScriptBlock(): void
     {
-        $this->write(FileBlocks::SCRIPT.PHP_EOL);
-        $this->write('; Script modified by assparser'.PHP_EOL);
-        $this->write('; https://github.com/gboquizosanchez/aegisub-subtitles'.PHP_EOL);
+        $this->write(FileBlocks::SCRIPT . PHP_EOL);
+        $this->write('; Script modified by assparser' . PHP_EOL);
+        $this->write('; https://github.com/gboquizosanchez/aegisub-subtitles' . PHP_EOL);
 
         foreach ($this->script as $key => $value) {
             if (end($this->script) === $value) {
-                $key = substr((string) $key, 0, 5).' '.substr((string) $key, 5, 10);
+                $key = substr((string)$key, 0, 5) . ' ' . substr((string)$key, 5, 10);
             }
-            $this->write(ucfirst((string) $key).Delimiters::COLON_WITH_SPACE.$value.PHP_EOL);
+            $this->write(ucfirst((string)$key) . Delimiters::COLON_WITH_SPACE . $value . PHP_EOL);
         }
 
         $this->write(PHP_EOL);
@@ -76,17 +75,17 @@ trait Writer
      *
      * Only admits: Style and events blocks.
      *
-     * @param string $block
+     * @param  string  $block
      */
     private function writeBlock(string $block): void
     {
         $firstBlockLine = reset($this->$block);
 
-        $this->write($this->headerBlock($block).PHP_EOL);
-        $this->write('Format: '.$this->keysCommaSeparated((array) $firstBlockLine).PHP_EOL);
+        $this->write($this->headerBlock($block) . PHP_EOL);
+        $this->write('Format: ' . $this->keysCommaSeparated((array)$firstBlockLine) . PHP_EOL);
 
         foreach ($this->$block as $line) {
-            $this->write($this->valuesCommaSeparated((array) $line).PHP_EOL);
+            $this->write($this->valuesCommaSeparated((array)$line) . PHP_EOL);
         }
 
         $this->write(PHP_EOL);
@@ -95,7 +94,7 @@ trait Writer
     /**
      * Return the header block line.
      *
-     * @param string $string
+     * @param  string  $string
      *
      * @return string
      */
@@ -114,7 +113,7 @@ trait Writer
     /**
      * Write in the new file.
      *
-     * @param string $string
+     * @param  string  $string
      */
     private function write(string $string): void
     {
@@ -124,7 +123,7 @@ trait Writer
     /**
      * Glue keys of a line with commas.
      *
-     * @param array $values
+     * @param  array  $values
      *
      * @return string
      */
@@ -138,7 +137,7 @@ trait Writer
     /**
      * Glue values of a line with commas.
      *
-     * @param array $values
+     * @param  array  $values
      *
      * @return string
      */
@@ -150,7 +149,7 @@ trait Writer
 
         $line = implode(Delimiters::COMMA, array_map('ucfirst', array_values($values)));
 
-        return $firstLine.Delimiters::COLON_WITH_SPACE.$line;
+        return $firstLine . Delimiters::COLON_WITH_SPACE . $line;
     }
 
     /**
@@ -160,7 +159,7 @@ trait Writer
      */
     private function openFile(): void
     {
-        if (!is_dir($this->path) && (!mkdir($this->path) && !is_dir($this->path))) {
+        if (! is_dir($this->path) && (! mkdir($this->path) && ! is_dir($this->path))) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $this->path));
         }
 

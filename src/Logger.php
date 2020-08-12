@@ -25,8 +25,8 @@ class Logger
     /**
      * Logger constructor.
      *
-     * @param string $filename
-     * @param string $extension
+     * @param  string  $filename
+     * @param  string  $extension
      */
     public function __construct(string $filename, string $extension = 'ass')
     {
@@ -36,23 +36,23 @@ class Logger
     /**
      * Write a line with EOL.
      *
-     * @param string|null $string
-     * @param null        $type
+     * @param  string|null  $string
+     * @param  null  $type
      *
      * @return void
      */
     public function write(?string $string = '', $type = null): void
     {
         $type === 'center'
-            ? fwrite($this->file, $this->writeCenteredLine($string).PHP_EOL ?? '')
-            : fwrite($this->file, $string.PHP_EOL ?? '');
+            ? fwrite($this->file, $this->writeCenteredLine($string) . PHP_EOL ?? '')
+            : fwrite($this->file, $string . PHP_EOL ?? '');
     }
 
     /**
      * Write a separator with 120 characters by default.
      *
-     * @param string $string
-     * @param int    $amount
+     * @param  string  $string
+     * @param  int  $amount
      *
      * @return void
      */
@@ -60,7 +60,7 @@ class Logger
     {
         $amount = $amount <= $this->numOfLines ? $amount : $this->numOfLines;
 
-        $header = str_repeat($string, $amount).PHP_EOL;
+        $header = str_repeat($string, $amount) . PHP_EOL;
 
         fwrite($this->file, $header);
     }
@@ -68,7 +68,7 @@ class Logger
     /**
      * Write a centered line.
      *
-     * @param string $string
+     * @param  string  $string
      *
      * @return string
      */
@@ -76,7 +76,7 @@ class Logger
     {
         $headerLength = mb_strlen($string);
 
-        $sides = (object) ['right' => 0, 'left' => 0];
+        $sides = (object)['right' => 0, 'left' => 0];
 
         foreach ($sides as $key => $side) {
             $side = ($this->numOfLines - $headerLength) / 2;
@@ -85,10 +85,10 @@ class Logger
                 $side++;
             }
 
-            $sides->$key = str_repeat(Delimiters::SPACE, (int) $side);
+            $sides->$key = str_repeat(Delimiters::SPACE, (int)$side);
         }
 
-        return Delimiters::SPACE.$sides->left.$string.$sides->right;
+        return Delimiters::SPACE . $sides->left . $string . $sides->right;
     }
 
     /**

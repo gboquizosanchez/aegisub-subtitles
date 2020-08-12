@@ -1,5 +1,5 @@
 php:
-  preset: laravel
+  preset: psr12
   finder:
     not-name:
       - assparser

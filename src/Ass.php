@@ -10,6 +10,7 @@ use Aegisub\Contracts\Processor;
 use Aegisub\Contracts\Writer;
 use Aegisub\Exceptions\FileNotFoundException;
 use Aegisub\Exceptions\FileNotValidException;
+use JsonException;
 
 class Ass
 {
@@ -39,9 +40,9 @@ class Ass
     /**
      * Parse .ass to an Ass object.
      *
-     * @throws FileNotValidException
-     *
      * @return Ass
+     *
+     * @throws FileNotValidException
      */
     private function parse(): self
     {
@@ -56,9 +57,10 @@ class Ass
      * Transform the object to json string.
      *
      * @return string
+     * @throws JsonException
      */
     public function __toString(): string
     {
-        return (string) json_encode($this, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, 512);
+        return (string)json_encode($this, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT, 512);
     }
 }

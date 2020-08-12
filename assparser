@@ -5,9 +5,14 @@ declare(strict_types=1);
 use Aegisub\Parser;
 
 if (PHP_SAPI) {
-    require __DIR__.'/vendor/autoload.php';
+    require __DIR__ . '/vendor/autoload.php';
 
-    $arguments = getopt('f:bac', ['file:']);
+    $arguments = getopt('f:hbac', ['file:', 'help']);
+
+    if (isset($arguments['h']) || isset($arguments['help'])) {
+        // TODO command line help.
+        die('Help here');
+    }
 
     $filename = $arguments['file'] ?? $arguments['f'] ?? '';
 

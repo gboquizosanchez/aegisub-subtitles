@@ -6,7 +6,6 @@ namespace Aegisub\Contracts;
 
 use Aegisub\Enums\Blocks;
 use Aegisub\Enums\Delimiters;
-use Aegisub\Enums\Lines;
 
 trait Transformer
 {
@@ -54,7 +53,7 @@ trait Transformer
     {
         // An empty object is establish in this method
         // because PHP not admit empty object in declaration.
-        $this->object = (object) [];
+        $this->object = (object)[];
 
         $this->scriptBlock();
 
@@ -76,12 +75,12 @@ trait Transformer
     {
         foreach ($this->{Blocks::SCRIPT} as $line) {
             // Delete dummy lines with this condition.
-            if (!contains($line, Delimiters::SEMICOLON)) {
+            if (! contains($line, Delimiters::SEMICOLON)) {
                 $this->setScriptAttribute($line);
             }
         }
 
-        $this->{Blocks::SCRIPT} = (array) $this->object;
+        $this->{Blocks::SCRIPT} = (array)$this->object;
 
         $this->reset();
     }
@@ -89,7 +88,7 @@ trait Transformer
     /**
      * Split script line and establish into an empty object.
      *
-     * @param string $line
+     * @param  string  $line
      */
     private function setScriptAttribute(string $line): void
     {
@@ -102,7 +101,7 @@ trait Transformer
      * Fill all block and establish it into an object attribute.
      * The name of the block is given by the block.
      *
-     * @param string $block
+     * @param  string  $block
      */
     private function extractBlock(string $block): void
     {
@@ -146,7 +145,7 @@ trait Transformer
      * Format the attribute line without spaces
      * and with the first letter into lowercase.
      *
-     * @param string $string
+     * @param  string  $string
      *
      * @return string
      */
@@ -159,7 +158,7 @@ trait Transformer
      * Check if is the line is the first
      * in the array block.
      *
-     * @param string $line
+     * @param  string  $line
      *
      * @return bool
      */
@@ -171,7 +170,7 @@ trait Transformer
     /**
      * Extract all values contained into the line.
      *
-     * @param string $line
+     * @param  string  $line
      *
      * @return array
      */
@@ -196,7 +195,7 @@ trait Transformer
      */
     private function reset(): void
     {
-        $this->object = (object) [];
+        $this->object = (object)[];
     }
 
     /**
